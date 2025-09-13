@@ -33,43 +33,43 @@
         .header {
             background: linear-gradient(135deg, #4CAF50, #45a049);
             color: white;
-            padding: 15px 10px;
+            padding: 8px 6px;
             text-align: center;
         }
         
         .header h1 {
-            font-size: 20px;
-            margin-bottom: 5px;
+            font-size: 16px;
+            margin-bottom: 2px;
             font-weight: 300;
         }
         
         .header p {
-            font-size: 12px;
+            font-size: 10px;
             opacity: 0.9;
         }
         
         .form-container {
-            padding: 10px;
+            padding: 6px;
         }
         
         .input-group {
-            margin-bottom: 6px;
+            margin-bottom: 3px;
         }
         
         .input-group label {
             display: block;
-            margin-bottom: 2px;
+            margin-bottom: 1px;
             font-weight: 600;
             color: #333;
-            font-size: 11px;
+            font-size: 9px;
         }
         
         .input-group input {
             width: 100%;
-            padding: 6px;
-            border: 2px solid #e1e5e9;
-            border-radius: 4px;
-            font-size: 13px;
+            padding: 4px;
+            border: 1px solid #e1e5e9;
+            border-radius: 3px;
+            font-size: 11px;
             transition: all 0.3s ease;
             background-color: #fafafa;
         }
@@ -83,21 +83,21 @@
         
         .input-group input::placeholder {
             color: #999;
-            font-size: 14px;
+            font-size: 11px;
         }
         
         .calculate-btn {
             width: 100%;
-            padding: 8px;
+            padding: 5px;
             background: linear-gradient(135deg, #4CAF50, #45a049);
             color: white;
             border: none;
-            border-radius: 6px;
-            font-size: 14px;
+            border-radius: 4px;
+            font-size: 11px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-top: 10px;
+            margin-top: 6px;
         }
         
         .calculate-btn:hover {
@@ -110,11 +110,11 @@
         }
         
         .results {
-            margin-top: 10px;
-            padding: 8px;
+            margin-top: 6px;
+            padding: 5px;
             background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            border-radius: 6px;
-            border-left: 3px solid #4CAF50;
+            border-radius: 4px;
+            border-left: 2px solid #4CAF50;
             display: none;
         }
         
@@ -122,8 +122,8 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 5px;
-            padding: 3px 0;
+            margin-bottom: 3px;
+            padding: 2px 0;
             border-bottom: 1px solid #dee2e6;
         }
         
@@ -135,13 +135,13 @@
         .result-label {
             font-weight: 600;
             color: #495057;
-            font-size: 12px;
+            font-size: 10px;
         }
         
         .result-value {
             color: #28a745;
             font-weight: 700;
-            font-size: 14px;
+            font-size: 12px;
         }
         
         
@@ -204,105 +204,152 @@
         
         @media (max-width: 768px) {
             body {
-                padding: 3px;
+                padding: 2px;
             }
             
             .container {
                 margin: 0;
-                border-radius: 8px;
+                border-radius: 6px;
             }
             
             .header {
-                padding: 8px;
+                padding: 4px;
             }
             
-            .header h1 {
-                font-size: 16px;
-            }
-            
-            .header p {
-                font-size: 10px;
-            }
-            
-            .form-container {
-                padding: 8px;
-            }
-            
-            /* 移动端改为单列布局 */
-            .grid-2-columns {
-                grid-template-columns: 1fr !important;
-                gap: 6px !important;
-                margin-bottom: 8px !important;
-            }
-            
-            .result-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 2px;
-            }
-            
-            .input-group {
-                margin-bottom: 5px;
-            }
-            
-            .input-group label {
-                font-size: 10px;
-            }
-            
-            .input-group input {
-                padding: 5px;
-                font-size: 12px;
-            }
-            
-            .calculate-btn {
-                padding: 8px;
-                font-size: 12px;
-                margin-top: 8px;
-            }
-            
-            .results {
-                margin-top: 8px;
-                padding: 6px;
-            }
-            
-            .result-label {
-                font-size: 11px;
-            }
-            
-            .result-value {
-                font-size: 12px;
-            }
-        }
-        
-        @media (max-width: 480px) {
             .header h1 {
                 font-size: 14px;
             }
             
             .header p {
-                font-size: 9px;
+                font-size: 8px;
             }
             
             .form-container {
-                padding: 6px;
+                padding: 4px;
+            }
+            
+            /* 移动端改为单列布局 */
+            .grid-2-columns {
+                grid-template-columns: 1fr !important;
+                gap: 3px !important;
+                margin-bottom: 4px !important;
+            }
+            
+            .result-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1px;
             }
             
             .input-group {
-                margin-bottom: 4px;
-            }
-            
-            .grid-2-columns {
-                gap: 4px !important;
-                margin-bottom: 6px !important;
+                margin-bottom: 2px;
             }
             
             .input-group label {
-                font-size: 9px;
+                font-size: 8px;
             }
             
             .input-group input {
+                padding: 3px;
+                font-size: 10px;
+            }
+            
+            .input-group input::placeholder {
+                font-size: 10px;
+            }
+            
+            .calculate-btn {
                 padding: 4px;
+                font-size: 10px;
+                margin-top: 4px;
+            }
+            
+            .results {
+                margin-top: 4px;
+                padding: 3px;
+            }
+            
+            .result-label {
+                font-size: 9px;
+            }
+            
+            .result-value {
+                font-size: 10px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 12px;
+            }
+            
+            .header p {
+                font-size: 7px;
+            }
+            
+            .form-container {
+                padding: 3px;
+            }
+            
+            .input-group {
+                margin-bottom: 1px;
+            }
+            
+            .grid-2-columns {
+                gap: 2px !important;
+                margin-bottom: 3px !important;
+            }
+            
+            .input-group label {
+                font-size: 7px;
+            }
+            
+            .input-group input {
+                padding: 2px;
+                font-size: 9px;
+            }
+            
+            .input-group input::placeholder {
+                font-size: 9px;
+            }
+            
+            .header {
+                padding: 3px;
+            }
+            
+            .results {
+                padding: 2px;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .header h1 {
                 font-size: 11px;
+            }
+            
+            .header p {
+                font-size: 6px;
+            }
+            
+            .form-container {
+                padding: 2px;
+            }
+            
+            .input-group {
+                margin-bottom: 1px;
+            }
+            
+            .input-group label {
+                font-size: 6px;
+            }
+            
+            .input-group input {
+                padding: 2px;
+                font-size: 8px;
+            }
+            
+            .input-group input::placeholder {
+                font-size: 8px;
             }
         }
     </style>
@@ -317,7 +364,7 @@
         <div class="form-container">
             
             <!-- 行权价和持有股数组合 -->
-            <div class="grid-2-columns" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+            <div class="grid-2-columns" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 4px;">
                 <div class="input-group">
                     <label for="shares">📊 持有股数</label>
                     <input type="number" id="shares" placeholder="请输入持有股数" min="0" step="1">
@@ -330,16 +377,16 @@
             </div>
             
             <!-- 美股和港股两列布局 -->
-            <div class="grid-2-columns" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+            <div class="grid-2-columns" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 4px;">
                 <!-- 美股列 -->
-                <div style="background: linear-gradient(135deg, #e3f2fd, #f3e5f5); padding: 8px; border-radius: 6px; border-left: 3px solid #2196f3;">
-                    <h3 style="margin: 0 0 6px 0; color: #1976d2; font-size: 12px; text-align: center;">🇺🇸 美股 HSAI</h3>
+                <div style="background: linear-gradient(135deg, #e3f2fd, #f3e5f5); padding: 4px; border-radius: 4px; border-left: 2px solid #2196f3;">
+                    <h3 style="margin: 0 0 3px 0; color: #1976d2; font-size: 10px; text-align: center;">🇺🇸 美股 HSAI</h3>
                     
                     <div class="input-group">
                         <label for="usStockCode">股票代码</label>
-                        <div style="display: flex; gap: 8px; align-items: center;">
+                        <div style="display: flex; gap: 4px; align-items: center;">
                             <input type="text" id="usStockCode" placeholder="美股代码" value="HSAI" style="flex: 1;">
-                            <button type="button" id="fetchUsPriceBtn" onclick="fetchUSStockPrice()" style="padding: 6px 10px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px;">
+                            <button type="button" id="fetchUsPriceBtn" onclick="fetchUSStockPrice()" style="padding: 3px 6px; background: #28a745; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 9px;">
                                 📈
                             </button>
                         </div>
@@ -347,14 +394,14 @@
                     
                     <div class="input-group">
                         <label for="usPrice">股价 (USD)</label>
-                        <input type="number" id="usPrice" placeholder="美股价格" min="0" step="0.01">
+                        <input type="number" id="usPrice" min="0" step="0.01">
                     </div>
                     
                     <div class="input-group">
                         <label for="usdToCny">美元汇率</label>
-                        <div style="display: flex; gap: 8px; align-items: center;">
+                        <div style="display: flex; gap: 4px; align-items: center;">
                             <input type="number" id="usdToCny" placeholder="USD/CNY" min="0" step="0.0001" style="flex: 1;">
-                            <button type="button" id="fetchUsdBtn" onclick="fetchUSDExchangeRate()" style="padding: 6px 10px; background: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px;">
+                            <button type="button" id="fetchUsdBtn" onclick="fetchUSDExchangeRate()" style="padding: 3px 6px; background: #17a2b8; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 9px;">
                                 🔄
                             </button>
                         </div>
@@ -362,14 +409,14 @@
                 </div>
                 
                 <!-- 港股列 -->
-                <div style="background: linear-gradient(135deg, #fff3e0, #fce4ec); padding: 8px; border-radius: 6px; border-left: 3px solid #ff9800;">
-                    <h3 style="margin: 0 0 6px 0; color: #f57c00; font-size: 12px; text-align: center;">🇭🇰 港股 02525</h3>
+                <div style="background: linear-gradient(135deg, #fff3e0, #fce4ec); padding: 4px; border-radius: 4px; border-left: 2px solid #ff9800;">
+                    <h3 style="margin: 0 0 3px 0; color: #f57c00; font-size: 10px; text-align: center;">🇭🇰 港股 02525</h3>
                     
                     <div class="input-group">
                         <label for="hkStockCode">股票代码</label>
-                        <div style="display: flex; gap: 8px; align-items: center;">
+                        <div style="display: flex; gap: 4px; align-items: center;">
                             <input type="text" id="hkStockCode" placeholder="港股代码" value="02525" style="flex: 1;">
-                            <button type="button" id="fetchHkPriceBtn" onclick="fetchHKStockPrice()" style="padding: 6px 10px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px;">
+                            <button type="button" id="fetchHkPriceBtn" onclick="fetchHKStockPrice()" style="padding: 3px 6px; background: #28a745; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 9px;">
                                 📈
                             </button>
                         </div>
@@ -377,14 +424,14 @@
                     
                     <div class="input-group">
                         <label for="hkPrice">股价 (HKD)</label>
-                        <input type="number" id="hkPrice" placeholder="港股价格" min="0" step="0.01">
+                        <input type="number" id="hkPrice" min="0" step="0.01">
                     </div>
                     
                     <div class="input-group">
                         <label for="hkdToCny">港元汇率</label>
-                        <div style="display: flex; gap: 8px; align-items: center;">
+                        <div style="display: flex; gap: 4px; align-items: center;">
                             <input type="number" id="hkdToCny" placeholder="HKD/CNY" min="0" step="0.0001" style="flex: 1;">
-                            <button type="button" id="fetchHkdBtn" onclick="fetchHKDExchangeRate()" style="padding: 6px 10px; background: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px;">
+                            <button type="button" id="fetchHkdBtn" onclick="fetchHKDExchangeRate()" style="padding: 3px 6px; background: #17a2b8; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 9px;">
                                 🔄
                             </button>
                         </div>
@@ -392,14 +439,14 @@
                 </div>
             </div>
             
-            <div style="text-align: center; margin: 8px 0;">
-                <button type="button" onclick="fetchAllStockData()" style="padding: 6px 12px; background: linear-gradient(135deg, #28a745, #20c997); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600; margin-right: 6px; box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3); transition: all 0.3s ease;">
+            <div style="text-align: center; margin: 4px 0;">
+                <button type="button" onclick="fetchAllStockData()" style="padding: 4px 8px; background: linear-gradient(135deg, #28a745, #20c997); color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 9px; font-weight: 600; margin-right: 4px; box-shadow: 0 1px 2px rgba(40, 167, 69, 0.3); transition: all 0.3s ease;">
                     📊 获取所有数据
                 </button>
-                <button type="button" onclick="fetchAllExchangeRates()" style="padding: 6px 12px; background: linear-gradient(135deg, #17a2b8, #138496); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600; margin-right: 6px; box-shadow: 0 2px 4px rgba(23, 162, 184, 0.3); transition: all 0.3s ease;">
+                <button type="button" onclick="fetchAllExchangeRates()" style="padding: 4px 8px; background: linear-gradient(135deg, #17a2b8, #138496); color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 9px; font-weight: 600; margin-right: 4px; box-shadow: 0 1px 2px rgba(23, 162, 184, 0.3); transition: all 0.3s ease;">
                     🌐 仅汇率
                 </button>
-                <button type="button" onclick="clearLocalStorage()" style="padding: 6px 12px; background: linear-gradient(135deg, #dc3545, #c82333); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600; box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3); transition: all 0.3s ease;">
+                <button type="button" onclick="clearLocalStorage()" style="padding: 4px 8px; background: linear-gradient(135deg, #dc3545, #c82333); color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 9px; font-weight: 600; box-shadow: 0 1px 2px rgba(220, 53, 69, 0.3); transition: all 0.3s ease;">
                     🗑️ 清空数据
                 </button>
             </div>
@@ -409,23 +456,23 @@
             </button>
              -->
             <div id="results" class="results">
-                <h3 style="text-align: center; margin: 0 0 8px 0; color: #333; font-size: 14px;">📊 市值计算结果</h3>
+                <h3 style="text-align: center; margin: 0 0 4px 0; color: #333; font-size: 11px;">📊 市值计算结果</h3>
                 
                 <!-- 市值结果两列布局 -->
-                <div class="grid-2-columns" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div class="grid-2-columns" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
                     <!-- 美股市值列 -->
-                    <div style="background: linear-gradient(135deg, #e3f2fd, #f3e5f5); padding: 8px; border-radius: 6px; border-left: 3px solid #2196f3;">
-                        <h4 style="margin: 0 0 6px 0; color: #1976d2; font-size: 11px; text-align: center;">🇺🇸 美股市值</h4>
+                    <div style="background: linear-gradient(135deg, #e3f2fd, #f3e5f5); padding: 4px; border-radius: 3px; border-left: 2px solid #2196f3;">
+                        <h4 style="margin: 0 0 3px 0; color: #1976d2; font-size: 9px; text-align: center;">🇺🇸 美股市值</h4>
                         <div style="text-align: center;">
-                            <span id="usMarketValue" class="result-value" style="display: block; font-size: 14px; color: #28a745; font-weight: bold;"></span>
+                            <span id="usMarketValue" class="result-value" style="display: block; font-size: 11px; color: #28a745; font-weight: bold;"></span>
                         </div>
                     </div>
                     
                     <!-- 港股市值列 -->
-                    <div style="background: linear-gradient(135deg, #fff3e0, #fce4ec); padding: 8px; border-radius: 6px; border-left: 3px solid #ff9800;">
-                        <h4 style="margin: 0 0 6px 0; color: #f57c00; font-size: 11px; text-align: center;">🇭🇰 港股市值</h4>
+                    <div style="background: linear-gradient(135deg, #fff3e0, #fce4ec); padding: 4px; border-radius: 3px; border-left: 2px solid #ff9800;">
+                        <h4 style="margin: 0 0 3px 0; color: #f57c00; font-size: 9px; text-align: center;">🇭🇰 港股市值</h4>
                         <div style="text-align: center;">
-                            <span id="hkMarketValue" class="result-value" style="display: block; font-size: 14px; color: #28a745; font-weight: bold;"></span>
+                            <span id="hkMarketValue" class="result-value" style="display: block; font-size: 11px; color: #28a745; font-weight: bold;"></span>
                         </div>
                     </div>
                 </div>
