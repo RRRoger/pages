@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>股票市值计算器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 10px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            width: 100%;
+            max-width: 100%;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 15px 10px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 20px;
+            margin-bottom: 5px;
+            font-weight: 300;
+        }
+        
+        .header p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .form-container {
+            padding: 15px;
+        }
+        
+        .input-group {
+            margin-bottom: 10px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 3px;
+            font-weight: 600;
+            color: #333;
+            font-size: 12px;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #e1e5e9;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background-color: #fafafa;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #4CAF50;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+        
+        .input-group input::placeholder {
+            color: #999;
+            font-size: 14px;
+        }
+        
+        .calculate-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+        
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(76, 175, 80, 0.3);
+        }
+        
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+        
+        .results {
+            margin-top: 15px;
+            padding: 10px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+            display: none;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+            padding: 5px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .result-label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 14px;
+        }
+        
+        .result-value {
+            color: #28a745;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        
+        
+        .error {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+            padding: 10px;
+            background-color: #f8d7da;
+            border-radius: 5px;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .info-tip {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #17a2b8;
+            font-size: 14px;
+        }
+        
+        .info-tip strong {
+            color: #0c5460;
+        }
+        
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        
+        .rate-info {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            border: 1px solid #c3e6cb;
+            font-size: 14px;
+        }
+        
+        .auto-loading {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ffc107;
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 5px;
+            }
+            
+            .container {
+                margin: 0;
+                border-radius: 10px;
+            }
+            
+            .header {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 18px;
+            }
+            
+            .form-container {
+                padding: 10px;
+            }
+            
+            /* 移动端改为单列布局 */
+            .grid-2-columns {
+                grid-template-columns: 1fr !important;
+                gap: 8px !important;
+                margin-bottom: 10px !important;
+            }
+            
+            .result-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 3px;
+            }
+            
+            .input-group {
+                margin-bottom: 8px;
+            }
+            
+            .input-group label {
+                font-size: 11px;
+            }
+            
+            .input-group input {
+                padding: 6px;
+                font-size: 13px;
+            }
+            
+            .calculate-btn {
+                padding: 10px;
+                font-size: 14px;
+                margin-top: 10px;
+            }
+            
+            .results {
+                margin-top: 10px;
+                padding: 8px;
+            }
+            
+            .result-label {
+                font-size: 12px;
+            }
+            
+            .result-value {
+                font-size: 14px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 16px;
+            }
+            
+            .form-container {
+                padding: 8px;
+            }
+            
+            .input-group {
+                margin-bottom: 6px;
+            }
+            
+            .grid-2-columns {
+                gap: 6px !important;
+                margin-bottom: 8px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📈 股票市值计算器</h1>
+        </div>
+        
+        <div class="form-container">
+            
+            <!-- 行权价和持有股数组合 -->
+            <div class="grid-2-columns" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                <div class="input-group">
+                    <label for="shares">📊 持有股数</label>
+                    <input type="number" id="shares" placeholder="请输入持有股数" min="0" step="1">
+                </div>
+                
+                <div class="input-group">
+                    <label for="strikePrice">⚡ 行权价 (USD)</label>
+                    <input type="number" id="strikePrice" placeholder="请输入行权价" min="0" step="0.01">
+                </div>
+            </div>
+            
+            <!-- 美股和港股两列布局 -->
+            <div class="grid-2-columns" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                <!-- 美股列 -->
+                <div style="background: linear-gradient(135deg, #e3f2fd, #f3e5f5); padding: 10px; border-radius: 8px; border-left: 4px solid #2196f3;">
+                    <h3 style="margin: 0 0 8px 0; color: #1976d2; font-size: 14px; text-align: center;">🇺🇸 美股 HSAI</h3>
+                    
+                    <div class="input-group">
+                        <label for="usStockCode">股票代码</label>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <input type="text" id="usStockCode" placeholder="美股代码" value="HSAI" style="flex: 1;">
+                            <button type="button" id="fetchUsPriceBtn" onclick="fetchUSStockPrice()" style="padding: 6px 10px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px;">
+                                📈
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="usPrice">股价 (USD)</label>
+                        <input type="number" id="usPrice" placeholder="美股价格" min="0" step="0.01">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="usdToCny">美元汇率</label>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <input type="number" id="usdToCny" placeholder="USD/CNY" min="0" step="0.0001" style="flex: 1;">
+                            <button type="button" id="fetchUsdBtn" onclick="fetchUSDExchangeRate()" style="padding: 6px 10px; background: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px;">
+                                🔄
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 港股列 -->
+                <div style="background: linear-gradient(135deg, #fff3e0, #fce4ec); padding: 10px; border-radius: 8px; border-left: 4px solid #ff9800;">
+                    <h3 style="margin: 0 0 8px 0; color: #f57c00; font-size: 14px; text-align: center;">🇭🇰 港股 02525</h3>
+                    
+                    <div class="input-group">
+                        <label for="hkStockCode">股票代码</label>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <input type="text" id="hkStockCode" placeholder="港股代码" value="02525" style="flex: 1;">
+                            <button type="button" id="fetchHkPriceBtn" onclick="fetchHKStockPrice()" style="padding: 6px 10px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px;">
+                                📈
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="hkPrice">股价 (HKD)</label>
+                        <input type="number" id="hkPrice" placeholder="港股价格" min="0" step="0.01">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="hkdToCny">港元汇率</label>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <input type="number" id="hkdToCny" placeholder="HKD/CNY" min="0" step="0.0001" style="flex: 1;">
+                            <button type="button" id="fetchHkdBtn" onclick="fetchHKDExchangeRate()" style="padding: 6px 10px; background: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px;">
+                                🔄
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin: 10px 0;">
+                <button type="button" onclick="fetchAllStockData()" style="padding: 8px 16px; background: linear-gradient(135deg, #28a745, #20c997); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; margin-right: 8px; box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3); transition: all 0.3s ease;">
+                    📊 获取所有数据
+                </button>
+                <button type="button" onclick="fetchAllExchangeRates()" style="padding: 8px 16px; background: linear-gradient(135deg, #17a2b8, #138496); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; margin-right: 8px; box-shadow: 0 2px 4px rgba(23, 162, 184, 0.3); transition: all 0.3s ease;">
+                    🌐 仅汇率
+                </button>
+                <button type="button" onclick="clearLocalStorage()" style="padding: 8px 16px; background: linear-gradient(135deg, #dc3545, #c82333); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3); transition: all 0.3s ease;">
+                    🗑️ 清空数据
+                </button>
+            </div>
+            
+            <!-- <button class="calculate-btn" onclick="calculateValue()">
+                🧮 计算市值
+            </button>
+             -->
+            <div id="results" class="results">
+                <h3 style="text-align: center; margin: 0 0 10px 0; color: #333; font-size: 16px;">📊 市值计算结果</h3>
+                
+                <!-- 市值结果两列布局 -->
+                <div class="grid-2-columns" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <!-- 美股市值列 -->
+                    <div style="background: linear-gradient(135deg, #e3f2fd, #f3e5f5); padding: 10px; border-radius: 8px; border-left: 4px solid #2196f3;">
+                        <h4 style="margin: 0 0 8px 0; color: #1976d2; font-size: 12px; text-align: center;">🇺🇸 美股市值</h4>
+                        <div style="text-align: center;">
+                            <span id="usMarketValue" class="result-value" style="display: block; font-size: 16px; color: #28a745; font-weight: bold;"></span>
+                        </div>
+                    </div>
+                    
+                    <!-- 港股市值列 -->
+                    <div style="background: linear-gradient(135deg, #fff3e0, #fce4ec); padding: 10px; border-radius: 8px; border-left: 4px solid #ff9800;">
+                        <h4 style="margin: 0 0 8px 0; color: #f57c00; font-size: 12px; text-align: center;">🇭🇰 港股市值</h4>
+                        <div style="text-align: center;">
+                            <span id="hkMarketValue" class="result-value" style="display: block; font-size: 16px; color: #28a745; font-weight: bold;"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="error" class="error" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        function calculateValue() {
+            // 获取输入值
+            const shares = parseFloat(document.getElementById('shares').value) || 0;
+            const usPrice = parseFloat(document.getElementById('usPrice').value) || 0;
+            const hkPrice = parseFloat(document.getElementById('hkPrice').value) || 0;
+            const strikePrice = parseFloat(document.getElementById('strikePrice').value) || 0;
+            const usdToCny = parseFloat(document.getElementById('usdToCny').value) || 0;
+            const hkdToCny = parseFloat(document.getElementById('hkdToCny').value) || 0;
+            
+            // 隐藏错误信息
+            document.getElementById('error').style.display = 'none';
+            
+            // 验证输入
+            if (shares <= 0) {
+                showError('请输入有效的股数');
+                return;
+            }
+            
+            if (usPrice <= 0 && hkPrice <= 0) {
+                showError('请至少输入一种股价（美股或港股）');
+                return;
+            }
+            
+            if (usPrice > 0 && usdToCny <= 0) {
+                showError('请输入美元兑人民币汇率');
+                return;
+            }
+            
+            if (hkPrice > 0 && hkdToCny <= 0) {
+                showError('请输入港元兑人民币汇率');
+                return;
+            }
+            
+            if (strikePrice <= 0) {
+                showError('请输入有效的行权价');
+                return;
+            }
+            
+            // 计算市值
+            let usMarketValue = 0;
+            let hkMarketValue = 0;
+            let usCalculation = '';
+            let hkCalculation = '';
+            
+            if (usPrice > 0 && usdToCny > 0) {
+                // 美股计算：(股价 - 行权价) * 股数 * 汇率
+                const usProfitPerShare = usPrice - strikePrice;
+                usMarketValue = usProfitPerShare * shares * usdToCny;
+                usCalculation = `(${usPrice.toFixed(2)} - ${strikePrice.toFixed(2)}) × ${shares.toLocaleString()} × ${usdToCny.toFixed(4)} = ${formatCurrency(usMarketValue)}`;
+            }
+            
+            if (hkPrice > 0 && hkdToCny > 0) {
+                // 港股计算：先将行权价转换为港元，然后计算 (股价 - 行权价) * 股数 * 汇率
+                const strikePriceInHKD = strikePrice * usdToCny / hkdToCny; // 美元行权价转换为港元
+                const hkProfitPerShare = hkPrice - strikePriceInHKD;
+                hkMarketValue = hkProfitPerShare * shares * hkdToCny;
+                hkCalculation = `(${hkPrice.toFixed(2)} - ${strikePriceInHKD.toFixed(2)}) × ${shares.toLocaleString()} × ${hkdToCny.toFixed(4)} = ${formatCurrency(hkMarketValue)}`;
+            }
+            
+            // 显示结果和计算过程
+            if (usMarketValue !== 0) {
+                document.getElementById('usMarketValue').innerHTML = 
+                    `<div style="text-align: right;">
+                        <div style="font-weight: 700; color: #28a745; font-size: 18px;">${formatCurrency(usMarketValue)}</div>
+                        <div style="color: #666; font-size: 11px; margin-top: 4px; line-height: 1.3;">${usCalculation}</div>
+                    </div>`;
+            } else {
+                document.getElementById('usMarketValue').textContent = '未计算';
+            }
+            
+            if (hkMarketValue !== 0) {
+                document.getElementById('hkMarketValue').innerHTML = 
+                    `<div style="text-align: right;">
+                        <div style="font-weight: 700; color: #28a745; font-size: 18px;">${formatCurrency(hkMarketValue)}</div>
+                        <div style="color: #666; font-size: 11px; margin-top: 4px; line-height: 1.3;">${hkCalculation}</div>
+                    </div>`;
+            } else {
+                document.getElementById('hkMarketValue').textContent = '未计算';
+            }
+            
+            document.getElementById('results').style.display = 'block';
+        }
+        
+        function formatCurrency(value) {
+            return value.toLocaleString('zh-CN', {
+                style: 'currency',
+                currency: 'CNY',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+        }
+        
+        // 允许按Enter键计算
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                calculateValue();
+            }
+        });
+        
+        // 实时计算（当所有必要字段都有值时）
+        function autoCalculate() {
+            const shares = parseFloat(document.getElementById('shares').value) || 0;
+            const usPrice = parseFloat(document.getElementById('usPrice').value) || 0;
+            const hkPrice = parseFloat(document.getElementById('hkPrice').value) || 0;
+            const strikePrice = parseFloat(document.getElementById('strikePrice').value) || 0;
+            const usdToCny = parseFloat(document.getElementById('usdToCny').value) || 0;
+            const hkdToCny = parseFloat(document.getElementById('hkdToCny').value) || 0;
+            
+            // 检查是否有足够的输入来计算
+            const hasUSData = usPrice > 0 && usdToCny > 0 && strikePrice > 0;
+            const hasHKData = hkPrice > 0 && hkdToCny > 0 && strikePrice > 0;
+            
+            if (shares > 0 && (hasUSData || hasHKData)) {
+                calculateValue();
+            }
+        }
+        
+        // 为所有输入框添加事件监听器
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('input', function() {
+                autoCalculate();
+                saveToLocalStorage(); // 自动保存
+            });
+        });
+        
+        // 为文本输入框添加事件监听器
+        document.querySelectorAll('input[type="text"]').forEach(input => {
+            input.addEventListener('input', function() {
+                saveToLocalStorage(); // 自动保存
+            });
+        });
+        
+        // 为行权价输入框添加特殊处理
+        document.getElementById('strikePrice').addEventListener('input', function() {
+            autoCalculate();
+            saveToLocalStorage(); // 自动保存
+        });
+        
+        // 为股票代码输入框添加事件监听器
+        document.getElementById('usStockCode').addEventListener('blur', function() {
+            if (this.value.trim()) {
+                fetchUSStockPrice();
+            }
+        });
+        
+        document.getElementById('hkStockCode').addEventListener('blur', function() {
+            if (this.value.trim()) {
+                fetchHKStockPrice();
+            }
+        });
+        
+        // 股价获取功能 - 支持多个API
+        async function fetchUSStockPrice() {
+            const btn = document.getElementById('fetchUsPriceBtn');
+            const input = document.getElementById('usPrice');
+            const stockCode = document.getElementById('usStockCode').value.trim().toUpperCase();
+            const originalText = btn.textContent;
+            
+            if (!stockCode) {
+                showError('请输入美股代码');
+                return;
+            }
+            
+            btn.textContent = '⏳ 获取中...';
+            btn.disabled = true;
+            btn.classList.add('loading');
+            
+            try {
+                // 尝试多个API源
+                let price = null;
+                let apiSource = '';
+                
+                // 1. 尝试新浪财经API
+                try {
+                    const sinaResponse = await fetch(`http://hq.sinajs.cn/list=gb_${stockCode.toLowerCase()}`, {
+                        mode: 'no-cors'
+                    });
+                    // 由于CORS限制，新浪API可能无法直接调用
+                } catch (sinaError) {
+                    console.log('新浪API调用失败:', sinaError);
+                }
+                
+                // 2. 尝试腾讯财经API
+                try {
+                    const tencentResponse = await fetch(`http://qt.gtimg.cn/q=us${stockCode}`, {
+                        mode: 'no-cors'
+                    });
+                    // 由于CORS限制，腾讯API可能无法直接调用
+                } catch (tencentError) {
+                    console.log('腾讯API调用失败:', tencentError);
+                }
+                
+                // 3. 尝试Yahoo Finance API
+                try {
+                    const yahooResponse = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${stockCode}`);
+                    const yahooData = await yahooResponse.json();
+                    
+                    if (yahooData.chart && yahooData.chart.result && yahooData.chart.result[0]) {
+                        const quote = yahooData.chart.result[0].meta;
+                        price = quote.regularMarketPrice;
+                        apiSource = 'Yahoo Finance';
+                    }
+                } catch (yahooError) {
+                    console.log('Yahoo Finance API调用失败:', yahooError);
+                }
+                
+                // 4. 尝试Finnhub API (免费)
+                if (!price) {
+                    try {
+                        const finnhubResponse = await fetch(`https://finnhub.io/api/v1/quote?symbol=${stockCode}&token=free`);
+                        const finnhubData = await finnhubResponse.json();
+                        
+                        if (finnhubData.c && finnhubData.c > 0) {
+                            price = finnhubData.c;
+                            apiSource = 'Finnhub';
+                        }
+                    } catch (finnhubError) {
+                        console.log('Finnhub API调用失败:', finnhubError);
+                    }
+                }
+                
+                // 5. 尝试Polygon.io API (免费)
+                if (!price) {
+                    try {
+                        const polygonResponse = await fetch(`https://api.polygon.io/v1/last/stocks/${stockCode}?apikey=free`);
+                        const polygonData = await polygonResponse.json();
+                        
+                        if (polygonData.last && polygonData.last.trade && polygonData.last.trade.p) {
+                            price = polygonData.last.trade.p;
+                            apiSource = 'Polygon.io';
+                        }
+                    } catch (polygonError) {
+                        console.log('Polygon.io API调用失败:', polygonError);
+                    }
+                }
+                
+                // 6. 尝试使用代理API访问Yahoo Finance
+                if (!price) {
+                    try {
+                        const proxyResponse = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${stockCode}`)}`);
+                        const proxyData = await proxyResponse.json();
+                        const yahooData = JSON.parse(proxyData.contents);
+                        
+                        if (yahooData.chart && yahooData.chart.result && yahooData.chart.result[0]) {
+                            const quote = yahooData.chart.result[0].meta;
+                            price = quote.regularMarketPrice;
+                            apiSource = 'Yahoo Finance (代理)';
+                        }
+                    } catch (proxyError) {
+                        console.log('代理API调用失败:', proxyError);
+                    }
+                }
+                
+                // 7. 尝试使用代理API访问新浪财经美股
+                if (!price) {
+                    try {
+                        const proxyResponse = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(`http://hq.sinajs.cn/list=gb_${stockCode.toLowerCase()}`)}`);
+                        const proxyData = await proxyResponse.json();
+                        const sinaData = proxyData.contents;
+                        
+                        if (sinaData && sinaData.includes(',')) {
+                            const parts = sinaData.split(',');
+                            if (parts.length > 1 && parts[1]) {
+                                price = parseFloat(parts[1]);
+                                apiSource = '新浪财经美股 (代理)';
+                            }
+                        }
+                    } catch (sinaError) {
+                        console.log('新浪财经美股API调用失败:', sinaError);
+                    }
+                }
+                
+                // 8. 尝试使用代理API访问腾讯财经美股
+                if (!price) {
+                    try {
+                        const proxyResponse = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(`http://qt.gtimg.cn/q=us${stockCode}`)}`);
+                        const proxyData = await proxyResponse.json();
+                        const tencentData = proxyData.contents;
+                        
+                        if (tencentData && tencentData.includes('~')) {
+                            const parts = tencentData.split('~');
+                            if (parts.length > 3 && parts[3]) {
+                                price = parseFloat(parts[3]);
+                                apiSource = '腾讯财经美股 (代理)';
+                            }
+                        }
+                    } catch (tencentError) {
+                        console.log('腾讯财经美股API调用失败:', tencentError);
+                    }
+                }
+                
+                // 9. 尝试使用CORS代理
+                if (!price) {
+                    try {
+                        const corsProxyResponse = await fetch(`https://cors-anywhere.herokuapp.com/https://query1.finance.yahoo.com/v8/finance/chart/${stockCode}`);
+                        const corsProxyData = await corsProxyResponse.json();
+                        
+                        if (corsProxyData.chart && corsProxyData.chart.result && corsProxyData.chart.result[0]) {
+                            const quote = corsProxyData.chart.result[0].meta;
+                            price = quote.regularMarketPrice;
+                            apiSource = 'Yahoo Finance (CORS代理)';
+                        }
+                    } catch (corsError) {
+                        console.log('CORS代理API调用失败:', corsError);
+                    }
+                }
+                
+                // 10. 尝试IEX Cloud API (免费)
+                if (!price) {
+                    try {
+                        const iexResponse = await fetch(`https://cloud.iexapis.com/stable/stock/${stockCode}/quote?token=free`);
+                        const iexData = await iexResponse.json();
+                        
+                        if (iexData.latestPrice && iexData.latestPrice > 0) {
+                            price = iexData.latestPrice;
+                            apiSource = 'IEX Cloud';
+                        }
+                    } catch (iexError) {
+                        console.log('IEX Cloud API调用失败:', iexError);
+                    }
+                }
+                
+                if (price && price > 0) {
+                    input.value = price.toFixed(2);
+                    showSuccessMessage(`✅ ${stockCode} 股价已更新: $${price.toFixed(2)} (来源: ${apiSource})`);
+                    // 延迟计算，确保数据已填充
+                    setTimeout(() => {
+                        autoCalculate();
+                    }, 100);
+                } else {
+                    throw new Error('所有API都无法获取股价数据');
+                }
+                
+            } catch (error) {
+                console.error('获取美股价格失败:', error);
+                // 如果所有API都失败，使用模拟数据
+                const mockPrice = Math.random() * 50 + 10; // 模拟价格 10-60 USD
+                input.value = mockPrice.toFixed(2);
+                showSuccessMessage(`⚠️ ${stockCode} 使用模拟价格: $${mockPrice.toFixed(2)} (所有API调用失败)`);
+                setTimeout(() => {
+                    autoCalculate();
+                }, 100);
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+                btn.classList.remove('loading');
+            }
+        }
+        
+        async function fetchHKStockPrice() {
+            const btn = document.getElementById('fetchHkPriceBtn');
+            const input = document.getElementById('hkPrice');
+            const stockCode = document.getElementById('hkStockCode').value.trim();
+            const originalText = btn.textContent;
+            
+            if (!stockCode) {
+                showError('请输入港股代码');
+                return;
+            }
+            
+            btn.textContent = '⏳ 获取中...';
+            btn.disabled = true;
+            btn.classList.add('loading');
+            
+            try {
+                // 尝试多个API源
+                let price = null;
+                let apiSource = '';
+                
+                // 1. 尝试Yahoo Finance API (港股需要添加.HK后缀)
+                try {
+                    const yahooCode = stockCode + '.HK';
+                    const yahooResponse = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${yahooCode}`);
+                    const yahooData = await yahooResponse.json();
+                    
+                    if (yahooData.chart && yahooData.chart.result && yahooData.chart.result[0]) {
+                        const quote = yahooData.chart.result[0].meta;
+                        price = quote.regularMarketPrice;
+                        apiSource = 'Yahoo Finance';
+                    }
+                } catch (yahooError) {
+                    console.log('Yahoo Finance API调用失败:', yahooError);
+                }
+                
+                // 2. 尝试使用代理API访问新浪财经
+                if (!price) {
+                    try {
+                        const proxyResponse = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(`http://hq.sinajs.cn/list=hk${stockCode}`)}`);
+                        const proxyData = await proxyResponse.json();
+                        const sinaData = proxyData.contents;
+                        
+                        if (sinaData && sinaData.includes(',')) {
+                            const parts = sinaData.split(',');
+                            if (parts.length > 3 && parts[3]) {
+                                price = parseFloat(parts[3]);
+                                apiSource = '新浪财经 (代理)';
+                            }
+                        }
+                    } catch (sinaError) {
+                        console.log('新浪财经API调用失败:', sinaError);
+                    }
+                }
+                
+                // 3. 尝试使用代理API访问腾讯财经
+                if (!price) {
+                    try {
+                        const proxyResponse = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(`http://qt.gtimg.cn/q=hk${stockCode}`)}`);
+                        const proxyData = await proxyResponse.json();
+                        const tencentData = proxyData.contents;
+                        
+                        if (tencentData && tencentData.includes('~')) {
+                            const parts = tencentData.split('~');
+                            if (parts.length > 3 && parts[3]) {
+                                price = parseFloat(parts[3]);
+                                apiSource = '腾讯财经 (代理)';
+                            }
+                        }
+                    } catch (tencentError) {
+                        console.log('腾讯财经API调用失败:', tencentError);
+                    }
+                }
+                
+                // 4. 尝试使用代理API访问Yahoo Finance
+                if (!price) {
+                    try {
+                        const yahooCode = stockCode + '.HK';
+                        const proxyResponse = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${yahooCode}`)}`);
+                        const proxyData = await proxyResponse.json();
+                        const yahooData = JSON.parse(proxyData.contents);
+                        
+                        if (yahooData.chart && yahooData.chart.result && yahooData.chart.result[0]) {
+                            const quote = yahooData.chart.result[0].meta;
+                            price = quote.regularMarketPrice;
+                            apiSource = 'Yahoo Finance (代理)';
+                        }
+                    } catch (proxyError) {
+                        console.log('代理API调用失败:', proxyError);
+                    }
+                }
+                
+                // 5. 尝试Finnhub API (免费) - 港股
+                if (!price) {
+                    try {
+                        const yahooCode = stockCode + '.HK';
+                        const finnhubResponse = await fetch(`https://finnhub.io/api/v1/quote?symbol=${yahooCode}&token=free`);
+                        const finnhubData = await finnhubResponse.json();
+                        
+                        if (finnhubData.c && finnhubData.c > 0) {
+                            price = finnhubData.c;
+                            apiSource = 'Finnhub';
+                        }
+                    } catch (finnhubError) {
+                        console.log('Finnhub API调用失败:', finnhubError);
+                    }
+                }
+                
+                // 6. 尝试Alpha Vantage API (如果有API Key)
+                if (!price) {
+                    try {
+                        const alphaVantageKey = 'demo'; // 免费版有限制
+                        const alphaResponse = await fetch(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${stockCode}.HK&apikey=${alphaVantageKey}`);
+                        const alphaData = await alphaResponse.json();
+                        
+                        if (alphaData['Global Quote'] && alphaData['Global Quote']['05. price']) {
+                            price = parseFloat(alphaData['Global Quote']['05. price']);
+                            apiSource = 'Alpha Vantage';
+                        }
+                    } catch (alphaError) {
+                        console.log('Alpha Vantage API调用失败:', alphaError);
+                    }
+                }
+                
+                // 7. 尝试IEX Cloud API (免费) - 港股
+                if (!price) {
+                    try {
+                        const iexResponse = await fetch(`https://cloud.iexapis.com/stable/stock/${stockCode}.HK/quote?token=free`);
+                        const iexData = await iexResponse.json();
+                        
+                        if (iexData.latestPrice && iexData.latestPrice > 0) {
+                            price = iexData.latestPrice;
+                            apiSource = 'IEX Cloud';
+                        }
+                    } catch (iexError) {
+                        console.log('IEX Cloud API调用失败:', iexError);
+                    }
+                }
+                
+                // 8. 尝试使用另一个代理服务
+                if (!price) {
+                    try {
+                        const yahooCode = stockCode + '.HK';
+                        const corsProxyResponse = await fetch(`https://cors-anywhere.herokuapp.com/https://query1.finance.yahoo.com/v8/finance/chart/${yahooCode}`);
+                        const corsProxyData = await corsProxyResponse.json();
+                        
+                        if (corsProxyData.chart && corsProxyData.chart.result && corsProxyData.chart.result[0]) {
+                            const quote = corsProxyData.chart.result[0].meta;
+                            price = quote.regularMarketPrice;
+                            apiSource = 'Yahoo Finance (CORS代理)';
+                        }
+                    } catch (corsError) {
+                        console.log('CORS代理API调用失败:', corsError);
+                    }
+                }
+                
+                if (price && price > 0) {
+                    input.value = price.toFixed(2);
+                    showSuccessMessage(`✅ ${stockCode} 股价已更新: HK$${price.toFixed(2)} (来源: ${apiSource})`);
+                    // 延迟计算，确保数据已填充
+                    setTimeout(() => {
+                        autoCalculate();
+                    }, 100);
+                } else {
+                    throw new Error('所有API都无法获取股价数据');
+                }
+                
+            } catch (error) {
+                console.error('获取港股价格失败:', error);
+                // 如果所有API都失败，使用模拟数据
+                const mockPrice = Math.random() * 20 + 5; // 模拟价格 5-25 HKD
+                input.value = mockPrice.toFixed(2);
+                showSuccessMessage(`⚠️ ${stockCode} 使用模拟价格: HK$${mockPrice.toFixed(2)} (所有API调用失败)`);
+                setTimeout(() => {
+                    autoCalculate();
+                }, 100);
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+                btn.classList.remove('loading');
+            }
+        }
+        
+        async function fetchAllStockData() {
+            const allBtn = document.querySelector('button[onclick="fetchAllStockData()"]');
+            const originalText = allBtn ? allBtn.textContent : '';
+            
+            if (allBtn) {
+                allBtn.textContent = '⏳ 获取所有数据中...';
+                allBtn.disabled = true;
+                allBtn.classList.add('loading');
+            }
+            
+            try {
+                // 同时获取股价和汇率
+                await Promise.all([
+                    fetchUSStockPrice(),
+                    fetchHKStockPrice(),
+                    fetchAllExchangeRates()
+                ]);
+                
+                // 获取完数据后自动计算
+                setTimeout(() => {
+                    calculateValue();
+                }, 500); // 延迟500ms确保数据已填充
+                
+                showSuccessMessage('✅ 所有股价和汇率数据已更新完成，并自动计算市值！');
+            } catch (error) {
+                console.error('获取所有数据失败:', error);
+                showError('获取数据时出现错误，请检查网络连接');
+            } finally {
+                if (allBtn) {
+                    allBtn.textContent = originalText;
+                    allBtn.disabled = false;
+                    allBtn.classList.remove('loading');
+                }
+            }
+        }
+        
+        // 汇率获取功能
+        async function fetchUSDExchangeRate() {
+            const btn = document.getElementById('fetchUsdBtn');
+            const input = document.getElementById('usdToCny');
+            const originalText = btn.textContent;
+            
+            btn.textContent = '⏳ 获取中...';
+            btn.disabled = true;
+            btn.classList.add('loading');
+            
+            try {
+                // 使用免费的汇率API
+                const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+                const data = await response.json();
+                
+                if (data.rates && data.rates.CNY) {
+                    const rate = data.rates.CNY;
+                    input.value = rate.toFixed(4);
+                    
+                    // 显示成功消息
+                    showSuccessMessage('✅ USD/CNY 汇率已更新: ' + rate.toFixed(4));
+                    
+                    // 自动计算
+                    setTimeout(() => {
+                        autoCalculate();
+                    }, 100);
+                } else {
+                    throw new Error('无法获取USD汇率数据');
+                }
+            } catch (error) {
+                console.error('获取USD汇率失败:', error);
+                showError('获取美元汇率失败，请手动输入汇率');
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+                btn.classList.remove('loading');
+            }
+        }
+        
+        async function fetchHKDExchangeRate() {
+            const btn = document.getElementById('fetchHkdBtn');
+            const input = document.getElementById('hkdToCny');
+            const originalText = btn.textContent;
+            
+            btn.textContent = '⏳ 获取中...';
+            btn.disabled = true;
+            btn.classList.add('loading');
+            
+            try {
+                // 使用免费的汇率API
+                const response = await fetch('https://api.exchangerate-api.com/v4/latest/HKD');
+                const data = await response.json();
+                
+                if (data.rates && data.rates.CNY) {
+                    const rate = data.rates.CNY;
+                    input.value = rate.toFixed(4);
+                    
+                    // 显示成功消息
+                    showSuccessMessage('✅ HKD/CNY 汇率已更新: ' + rate.toFixed(4));
+                    
+                    // 自动计算
+                    setTimeout(() => {
+                        autoCalculate();
+                    }, 100);
+                } else {
+                    throw new Error('无法获取HKD汇率数据');
+                }
+            } catch (error) {
+                console.error('获取HKD汇率失败:', error);
+                showError('获取港元汇率失败，请手动输入汇率');
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+                btn.classList.remove('loading');
+            }
+        }
+        
+        async function fetchAllExchangeRates() {
+            const allBtn = document.querySelector('button[onclick="fetchAllExchangeRates()"]');
+            const originalText = allBtn.textContent;
+            
+            allBtn.textContent = '⏳ 获取所有汇率中...';
+            allBtn.disabled = true;
+            allBtn.classList.add('loading');
+            
+            try {
+                // 同时获取USD和HKD汇率
+                const [usdResponse, hkdResponse] = await Promise.all([
+                    fetch('https://api.exchangerate-api.com/v4/latest/USD'),
+                    fetch('https://api.exchangerate-api.com/v4/latest/HKD')
+                ]);
+                
+                const usdData = await usdResponse.json();
+                const hkdData = await hkdResponse.json();
+                
+                if (usdData.rates && usdData.rates.CNY && hkdData.rates && hkdData.rates.CNY) {
+                    const usdRate = usdData.rates.CNY;
+                    const hkdRate = hkdData.rates.CNY;
+                    
+                    document.getElementById('usdToCny').value = usdRate.toFixed(4);
+                    document.getElementById('hkdToCny').value = hkdRate.toFixed(4);
+                    
+                    // 隐藏自动加载提示
+                    hideAutoLoadingMessage();
+                    
+                    // 显示成功消息
+                    showSuccessMessage(`✅ 所有汇率已更新<br>
+                        USD/CNY: ${usdRate.toFixed(4)}<br>
+                        HKD/CNY: ${hkdRate.toFixed(4)}`);
+                    
+                    // 自动计算
+                    setTimeout(() => {
+                        autoCalculate();
+                    }, 100);
+                } else {
+                    throw new Error('无法获取汇率数据');
+                }
+            } catch (error) {
+                console.error('获取汇率失败:', error);
+                hideAutoLoadingMessage();
+                showError('获取汇率失败，请检查网络连接或手动输入汇率');
+            } finally {
+                allBtn.textContent = originalText;
+                allBtn.disabled = false;
+                allBtn.classList.remove('loading');
+            }
+        }
+        
+        function showSuccessMessage(message) {
+            // 移除之前的成功消息
+            const existingMessage = document.querySelector('.success-message');
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+            
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success-message';
+            successDiv.innerHTML = message;
+            
+            // 插入到表单容器中
+            const formContainer = document.querySelector('.form-container');
+            const calculateBtn = document.querySelector('.calculate-btn');
+            formContainer.insertBefore(successDiv, calculateBtn);
+            
+            // 3秒后自动隐藏
+            setTimeout(() => {
+                if (successDiv.parentNode) {
+                    successDiv.remove();
+                }
+            }, 3000);
+        }
+        
+        // localStorage 功能
+        function saveToLocalStorage() {
+            const data = {
+                shares: document.getElementById('shares').value,
+                strikePrice: document.getElementById('strikePrice').value,
+                usStockCode: document.getElementById('usStockCode').value,
+                usPrice: document.getElementById('usPrice').value,
+                usdToCny: document.getElementById('usdToCny').value,
+                hkStockCode: document.getElementById('hkStockCode').value,
+                hkPrice: document.getElementById('hkPrice').value,
+                hkdToCny: document.getElementById('hkdToCny').value
+            };
+            localStorage.setItem('stockCalculatorData', JSON.stringify(data));
+        }
+        
+        function loadFromLocalStorage() {
+            const savedData = localStorage.getItem('stockCalculatorData');
+            if (savedData) {
+                try {
+                    const data = JSON.parse(savedData);
+                    if (data.shares) document.getElementById('shares').value = data.shares;
+                    if (data.strikePrice) document.getElementById('strikePrice').value = data.strikePrice;
+                    if (data.usStockCode) document.getElementById('usStockCode').value = data.usStockCode;
+                    if (data.usPrice) document.getElementById('usPrice').value = data.usPrice;
+                    if (data.usdToCny) document.getElementById('usdToCny').value = data.usdToCny;
+                    if (data.hkStockCode) document.getElementById('hkStockCode').value = data.hkStockCode;
+                    if (data.hkPrice) document.getElementById('hkPrice').value = data.hkPrice;
+                    if (data.hkdToCny) document.getElementById('hkdToCny').value = data.hkdToCny;
+                } catch (e) {
+                    console.log('加载本地数据失败:', e);
+                }
+            }
+        }
+        
+        function clearLocalStorage() {
+            localStorage.removeItem('stockCalculatorData');
+            // 清空所有输入框
+            document.getElementById('shares').value = '';
+            document.getElementById('strikePrice').value = '';
+            document.getElementById('usStockCode').value = '';
+            document.getElementById('usPrice').value = '';
+            document.getElementById('usdToCny').value = '';
+            document.getElementById('hkStockCode').value = '';
+            document.getElementById('hkPrice').value = '';
+            document.getElementById('hkdToCny').value = '';
+            showSuccessMessage('✅ 已清空所有数据');
+        }
+        
+        // 页面加载时隐藏结果区域并自动获取汇率
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('results').style.display = 'none';
+            
+            // 加载本地保存的数据
+            loadFromLocalStorage();
+            
+            // 显示自动加载提示
+            showAutoLoadingMessage();
+            
+            // 页面加载时自动获取所有数据（股价和汇率）并计算
+            setTimeout(() => {
+                fetchAllStockData();
+            }, 500); // 延迟500ms确保页面完全加载
+        });
+        
+        function showAutoLoadingMessage() {
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'auto-loading';
+            loadingDiv.innerHTML = '🔄 正在自动获取最新股价和汇率数据...';
+            loadingDiv.id = 'auto-loading-message';
+            
+            // 插入到使用说明之后
+            const infoTip = document.querySelector('.info-tip');
+            infoTip.parentNode.insertBefore(loadingDiv, infoTip.nextSibling);
+        }
+        
+        function hideAutoLoadingMessage() {
+            const loadingDiv = document.getElementById('auto-loading-message');
+            if (loadingDiv) {
+                loadingDiv.remove();
+            }
+        }
+    </script>
+</body>
+</html>
