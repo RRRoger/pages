@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>股票市值计算器</title>
+    <title>股票价值计算器</title>
     <style>
         * {
             margin: 0;
@@ -357,7 +357,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>📈 股票市值计算器</h1>
+            <h1>📈 股票价值计算器</h1>
             <p>🔒 数据值记录在您的设备中，可安全使用</p>
         </div>
         
@@ -452,25 +452,25 @@
             </div>
             
             <!-- <button class="calculate-btn" onclick="calculateValue()">
-                🧮 计算市值
+                🧮 计算价值
             </button>
              -->
             <div id="results" class="results">
-                <h3 style="text-align: center; margin: 0 0 4px 0; color: #333; font-size: 11px;">📊 市值计算结果</h3>
+                <h3 style="text-align: center; margin: 0 0 4px 0; color: #333; font-size: 11px;">📊 价值计算结果</h3>
                 
                 <!-- 市值结果两列布局 -->
                 <div class="grid-2-columns" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
-                    <!-- 美股市值列 -->
+                    <!-- 美股市价值列 -->
                     <div style="background: linear-gradient(135deg, #e3f2fd, #f3e5f5); padding: 4px; border-radius: 3px; border-left: 2px solid #2196f3;">
-                        <h4 style="margin: 0 0 3px 0; color: #1976d2; font-size: 9px; text-align: center;">🇺🇸 美股市值</h4>
+                        <h4 style="margin: 0 0 3px 0; color: #1976d2; font-size: 9px; text-align: center;">🇺🇸 美股市价值</h4>
                         <div style="text-align: center;">
                             <span id="usMarketValue" class="result-value" style="display: block; font-size: 11px; color: #28a745; font-weight: bold;"></span>
                         </div>
                     </div>
                     
-                    <!-- 港股市值列 -->
+                    <!-- 港股市价值列 -->
                     <div style="background: linear-gradient(135deg, #fff3e0, #fce4ec); padding: 4px; border-radius: 3px; border-left: 2px solid #ff9800;">
-                        <h4 style="margin: 0 0 3px 0; color: #f57c00; font-size: 9px; text-align: center;">🇭🇰 港股市值</h4>
+                        <h4 style="margin: 0 0 3px 0; color: #f57c00; font-size: 9px; text-align: center;">🇭🇰 港股市价值</h4>
                         <div style="text-align: center;">
                             <span id="hkMarketValue" class="result-value" style="display: block; font-size: 11px; color: #28a745; font-weight: bold;"></span>
                         </div>
@@ -521,7 +521,7 @@
                 return;
             }
             
-            // 计算市值
+            // 计算价值
             let usMarketValue = 0;
             let hkMarketValue = 0;
             let usCalculation = '';
@@ -1044,7 +1044,7 @@
                     calculateValue();
                 }, 500); // 延迟500ms确保数据已填充
                 
-                showSuccessMessage('✅ 所有股价和汇率数据已更新完成，并自动计算市值！');
+                showSuccessMessage('✅ 所有股价和汇率数据已更新完成，并自动计算价值！');
             } catch (error) {
                 console.error('获取所有数据失败:', error);
                 showError('获取数据时出现错误，请检查网络连接');
@@ -1077,7 +1077,7 @@
                     input.value = rate.toFixed(4);
                     
                     // 显示成功消息
-                    showSuccessMessage('✅ USD/CNY 汇率已更新: ' + rate.toFixed(4));
+                    showSuccessMessage('✅ USD/CNY 汇率已更新: ' + rate.toFixed(4) + '，并自动计算价值！');
                     
                     // 自动计算
                     setTimeout(() => {
@@ -1115,7 +1115,7 @@
                     input.value = rate.toFixed(4);
                     
                     // 显示成功消息
-                    showSuccessMessage('✅ HKD/CNY 汇率已更新: ' + rate.toFixed(4));
+                    showSuccessMessage('✅ HKD/CNY 汇率已更新: ' + rate.toFixed(4) + '，并自动计算价值！');
                     
                     // 自动计算
                     setTimeout(() => {
@@ -1163,7 +1163,7 @@
                     hideAutoLoadingMessage();
                     
                     // 显示成功消息
-                    showSuccessMessage(`✅ 所有汇率已更新<br>
+                    showSuccessMessage(`✅ 所有汇率已更新，并自动计算价值！<br>
                         USD/CNY: ${usdRate.toFixed(4)}<br>
                         HKD/CNY: ${hkdRate.toFixed(4)}`);
                     
@@ -1254,7 +1254,7 @@
             document.getElementById('hkStockCode').value = '';
             document.getElementById('hkPrice').value = '';
             document.getElementById('hkdToCny').value = '';
-            showSuccessMessage('✅ 已清空所有数据');
+            showSuccessMessage('✅ 已清空所有数据，并自动计算价值！');
         }
         
         // 页面加载时隐藏结果区域并自动获取汇率
@@ -1276,7 +1276,7 @@
         function showAutoLoadingMessage() {
             const loadingDiv = document.createElement('div');
             loadingDiv.className = 'auto-loading';
-            loadingDiv.innerHTML = '🔄 正在自动获取最新股价和汇率数据...';
+            loadingDiv.innerHTML = '🔄 正在自动获取最新股价和汇率数据，并自动计算价值...';
             loadingDiv.id = 'auto-loading-message';
             
             // 插入到使用说明之后
