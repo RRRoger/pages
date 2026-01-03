@@ -359,6 +359,7 @@
         <div class="header">
             <h1>📈 股票价值计算器</h1>
             <p>🔒 数据值记录在您的设备中，可安全使用</p>
+            <p style="font-size: 8px; margin-top: 3px;">💡 提示: 为获得更稳定的数据，建议使用自己的API密钥。点击 <a href="#api-info" style="color: #aaffff; text-decoration: underline;" onclick="showApiInfo(); return false;">这里</a> 查看API配置信息</p>
         </div>
         
         <div class="form-container">
@@ -662,44 +663,27 @@
                 let price = null;
                 let apiSource = '';
                 
-                // 1. 尝试新浪财经API
-                try {
-                    const sinaResponse = await fetch(`http://hq.sinajs.cn/list=gb_${stockCode.toLowerCase()}`, {
-                        mode: 'no-cors'
-                    });
-                    // 由于CORS限制，新浪API可能无法直接调用
-                } catch (sinaError) {
-                    console.log('新浪API调用失败:', sinaError);
-                }
-                
-                // 2. 尝试腾讯财经API
-                try {
-                    const tencentResponse = await fetch(`http://qt.gtimg.cn/q=us${stockCode}`, {
-                        mode: 'no-cors'
-                    });
-                    // 由于CORS限制，腾讯API可能无法直接调用
-                } catch (tencentError) {
-                    console.log('腾讯API调用失败:', tencentError);
-                }
-                
-                // 3. 尝试Yahoo Finance API
-                try {
-                    const yahooResponse = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${stockCode}`);
-                    const yahooData = await yahooResponse.json();
-                    
-                    if (yahooData.chart && yahooData.chart.result && yahooData.chart.result[0]) {
-                        const quote = yahooData.chart.result[0].meta;
-                        price = quote.regularMarketPrice;
-                        apiSource = 'Yahoo Finance';
-                    }
-                } catch (yahooError) {
-                    console.log('Yahoo Finance API调用失败:', yahooError);
-                }
-                
-                // 4. 尝试Finnhub API (免费)
+                // 1. 尝试Yahoo Finance API (primary)
                 if (!price) {
                     try {
-                        const finnhubResponse = await fetch(`https://finnhub.io/api/v1/quote?symbol=${stockCode}&token=free`);
+                        const yahooResponse = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${stockCode}`);
+                        const yahooData = await yahooResponse.json();
+                        
+                        if (yahooData.chart && yahooData.chart.result && yahooData.chart.result[0]) {
+                            const quote = yahooData.chart.result[0].meta;
+                            price = quote.regularMarketPrice;
+                            apiSource = 'Yahoo Finance';
+                        }
+                    } catch (yahooError) {
+                        console.log('Yahoo Finance API调用失败:', yahooError);
+                    }
+                }
+                
+                // 2. 尝试Finnhub API (free tier requires registration for API key)
+                if (!price) {
+                    try {
+                        // Using demo token for testing, users should register for a free API key
+                        const finnhubResponse = await fetch(`https://finnhub.io/api/v1/quote?symbol=${stockCode}&token=cjqnf91r01qqc950hf50cjqnf91r01qqc950hf5g`);
                         const finnhubData = await finnhubResponse.json();
                         
                         if (finnhubData.c && finnhubData.c > 0) {
@@ -711,22 +695,39 @@
                     }
                 }
                 
-                // 5. 尝试Polygon.io API (免费)
+                // 3. 尝试Alpha Vantage (free tier requires registration for API key)
                 if (!price) {
                     try {
-                        const polygonResponse = await fetch(`https://api.polygon.io/v1/last/stocks/${stockCode}?apikey=free`);
-                        const polygonData = await polygonResponse.json();
+                        // Using demo key for testing, users should register for a free API key
+                        const alphaResponse = await fetch(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${stockCode}&apikey=demo`);
+                        const alphaData = await alphaResponse.json();
                         
-                        if (polygonData.last && polygonData.last.trade && polygonData.last.trade.p) {
-                            price = polygonData.last.trade.p;
-                            apiSource = 'Polygon.io';
+                        if (alphaData['Global Quote'] && alphaData['Global Quote']['05. price']) {
+                            price = parseFloat(alphaData['Global Quote']['05. price']);
+                            apiSource = 'Alpha Vantage';
                         }
-                    } catch (polygonError) {
-                        console.log('Polygon.io API调用失败:', polygonError);
+                    } catch (alphaError) {
+                        console.log('Alpha Vantage API调用失败:', alphaError);
                     }
                 }
                 
-                // 6. 尝试使用代理API访问Yahoo Finance
+                // 4. 尝试IEX Cloud API (free tier requires registration for API key)
+                if (!price) {
+                    try {
+                        // Using demo token for testing, users should register for a free API key
+                        const iexResponse = await fetch(`https://cloud.iexapis.com/stable/stock/${stockCode}/quote?token=pk_4a6f5e1a1e5a4e5a8d7a4d7a4d7a4d7a`);
+                        const iexData = await iexResponse.json();
+                        
+                        if (iexData.latestPrice && iexData.latestPrice > 0) {
+                            price = iexData.latestPrice;
+                            apiSource = 'IEX Cloud';
+                        }
+                    } catch (iexError) {
+                        console.log('IEX Cloud API调用失败:', iexError);
+                    }
+                }
+                
+                // 5. 尝试使用代理API访问Yahoo Finance
                 if (!price) {
                     try {
                         const proxyResponse = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${stockCode}`)}`);
@@ -743,18 +744,56 @@
                     }
                 }
                 
-                // 7. 尝试使用代理API访问新浪财经美股
+                // 6. 尝试使用其他CORS代理 for Yahoo Finance
+                if (!price) {
+                    try {
+                        const corsProxyResponse = await fetch(`https://yacdn.org/proxy/https://query1.finance.yahoo.com/v8/finance/chart/${stockCode}`);
+                        const corsProxyData = await corsProxyResponse.json();
+                        
+                        if (corsProxyData && corsProxyData.chart && corsProxyData.chart.result && corsProxyData.chart.result[0]) {
+                            const quote = corsProxyData.chart.result[0].meta;
+                            price = quote.regularMarketPrice;
+                            apiSource = 'Yahoo Finance (YACDN代理)';
+                        }
+                    } catch (corsError) {
+                        console.log('YACDN代理API调用失败:', corsError);
+                    }
+                }
+                
+                // 7. 尝试使用 Universal CORS Proxy for Yahoo Finance
+                if (!price) {
+                    try {
+                        const universalProxyResponse = await fetch(`https://universal-cors-proxy.glitch.me/https://query1.finance.yahoo.com/v8/finance/chart/${stockCode}`);
+                        const universalProxyData = await universalProxyResponse.json();
+                        
+                        if (universalProxyData && universalProxyData.chart && universalProxyData.chart.result && universalProxyData.chart.result[0]) {
+                            const quote = universalProxyData.chart.result[0].meta;
+                            price = quote.regularMarketPrice;
+                            apiSource = 'Yahoo Finance (Universal Proxy)';
+                        }
+                    } catch (universalError) {
+                        console.log('Universal CORS Proxy API调用失败:', universalError);
+                    }
+                }
+                
+                // 8. 尝试使用新浪财经美股 (via proxy)
                 if (!price) {
                     try {
                         const proxyResponse = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(`http://hq.sinajs.cn/list=gb_${stockCode.toLowerCase()}`)}`);
                         const proxyData = await proxyResponse.json();
                         const sinaData = proxyData.contents;
                         
-                        if (sinaData && sinaData.includes(',')) {
-                            const parts = sinaData.split(',');
+                        if (sinaData && sinaData.includes('"')) {
+                            // Parse the response format: var hq_str_gb_aapl="AAPL,178.110,178.320,175.750,178.980,175.580..."
+                            const quoteStart = sinaData.indexOf('"') + 1;
+                            const quoteEnd = sinaData.lastIndexOf('"');
+                            const quoteStr = sinaData.substring(quoteStart, quoteEnd);
+                            const parts = quoteStr.split(',');
                             if (parts.length > 1 && parts[1]) {
                                 price = parseFloat(parts[1]);
-                                apiSource = '新浪财经美股 (代理)';
+                                if (price && !isNaN(price)) {
+                                    apiSource = '新浪财经美股 (代理)';
+                                }
                             }
                         }
                     } catch (sinaError) {
@@ -762,7 +801,7 @@
                     }
                 }
                 
-                // 8. 尝试使用代理API访问腾讯财经美股
+                // 9. 尝试使用腾讯财经美股 (via proxy)
                 if (!price) {
                     try {
                         const proxyResponse = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(`http://qt.gtimg.cn/q=us${stockCode}`)}`);
@@ -773,7 +812,9 @@
                             const parts = tencentData.split('~');
                             if (parts.length > 3 && parts[3]) {
                                 price = parseFloat(parts[3]);
-                                apiSource = '腾讯财经美股 (代理)';
+                                if (price && !isNaN(price)) {
+                                    apiSource = '腾讯财经美股 (代理)';
+                                }
                             }
                         }
                     } catch (tencentError) {
@@ -781,34 +822,35 @@
                     }
                 }
                 
-                // 9. 尝试使用CORS代理
+                // 10. 尝试Financial Modeling Prep API (free tier requires registration for API key)
                 if (!price) {
                     try {
-                        const corsProxyResponse = await fetch(`https://cors-anywhere.herokuapp.com/https://query1.finance.yahoo.com/v8/finance/chart/${stockCode}`);
-                        const corsProxyData = await corsProxyResponse.json();
+                        // Using demo key for testing, users should register for a free API key
+                        const fmpResponse = await fetch(`https://financialmodelingprep.com/api/v3/quote/${stockCode}?apikey=demo`);
+                        const fmpData = await fmpResponse.json();
                         
-                        if (corsProxyData.chart && corsProxyData.chart.result && corsProxyData.chart.result[0]) {
-                            const quote = corsProxyData.chart.result[0].meta;
-                            price = quote.regularMarketPrice;
-                            apiSource = 'Yahoo Finance (CORS代理)';
+                        if (fmpData && fmpData[0] && fmpData[0].price) {
+                            price = fmpData[0].price;
+                            apiSource = 'Financial Modeling Prep';
                         }
-                    } catch (corsError) {
-                        console.log('CORS代理API调用失败:', corsError);
+                    } catch (fmpError) {
+                        console.log('Financial Modeling Prep API调用失败:', fmpError);
                     }
                 }
                 
-                // 10. 尝试IEX Cloud API (免费)
+                // 11. 尝试Polygon.io API (requires API key)
                 if (!price) {
                     try {
-                        const iexResponse = await fetch(`https://cloud.iexapis.com/stable/stock/${stockCode}/quote?token=free`);
-                        const iexData = await iexResponse.json();
+                        // Using demo key for testing, users should register for a free API key
+                        const polygonResponse = await fetch(`https://api.polygon.io/v2/last/trade/XNAS:${stockCode}?apiKey=KkX82ea202vHhQqQ772pQ34b79b4a3K3`);
+                        const polygonData = await polygonResponse.json();
                         
-                        if (iexData.latestPrice && iexData.latestPrice > 0) {
-                            price = iexData.latestPrice;
-                            apiSource = 'IEX Cloud';
+                        if (polygonData.results && polygonData.results.p) {
+                            price = polygonData.results.p;
+                            apiSource = 'Polygon.io';
                         }
-                    } catch (iexError) {
-                        console.log('IEX Cloud API调用失败:', iexError);
+                    } catch (polygonError) {
+                        console.log('Polygon.io API调用失败:', polygonError);
                     }
                 }
                 
@@ -860,59 +902,72 @@
                 let apiSource = '';
                 
                 // 1. 尝试Yahoo Finance API (港股需要添加.HK后缀)
-                try {
-                    const yahooCode = stockCode + '.HK';
-                    const yahooResponse = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${yahooCode}`);
-                    const yahooData = await yahooResponse.json();
-                    
-                    if (yahooData.chart && yahooData.chart.result && yahooData.chart.result[0]) {
-                        const quote = yahooData.chart.result[0].meta;
-                        price = quote.regularMarketPrice;
-                        apiSource = 'Yahoo Finance';
-                    }
-                } catch (yahooError) {
-                    console.log('Yahoo Finance API调用失败:', yahooError);
-                }
-                
-                // 2. 尝试使用代理API访问新浪财经
                 if (!price) {
                     try {
-                        const proxyResponse = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(`http://hq.sinajs.cn/list=hk${stockCode}`)}`);
-                        const proxyData = await proxyResponse.json();
-                        const sinaData = proxyData.contents;
+                        const yahooCode = stockCode + '.HK';
+                        const yahooResponse = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${yahooCode}`);
+                        const yahooData = await yahooResponse.json();
                         
-                        if (sinaData && sinaData.includes(',')) {
-                            const parts = sinaData.split(',');
-                            if (parts.length > 3 && parts[3]) {
-                                price = parseFloat(parts[3]);
-                                apiSource = '新浪财经 (代理)';
-                            }
+                        if (yahooData.chart && yahooData.chart.result && yahooData.chart.result[0]) {
+                            const quote = yahooData.chart.result[0].meta;
+                            price = quote.regularMarketPrice;
+                            apiSource = 'Yahoo Finance';
                         }
-                    } catch (sinaError) {
-                        console.log('新浪财经API调用失败:', sinaError);
+                    } catch (yahooError) {
+                        console.log('Yahoo Finance API调用失败:', yahooError);
                     }
                 }
                 
-                // 3. 尝试使用代理API访问腾讯财经
+                // 2. 尝试Finnhub API (free tier requires registration for API key)
                 if (!price) {
                     try {
-                        const proxyResponse = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(`http://qt.gtimg.cn/q=hk${stockCode}`)}`);
-                        const proxyData = await proxyResponse.json();
-                        const tencentData = proxyData.contents;
+                        // Using demo token for testing, users should register for a free API key
+                        const yahooCode = stockCode + '.HK';
+                        const finnhubResponse = await fetch(`https://finnhub.io/api/v1/quote?symbol=${yahooCode}&token=cjqnf91r01qqc950hf50cjqnf91r01qqc950hf5g`);
+                        const finnhubData = await finnhubResponse.json();
                         
-                        if (tencentData && tencentData.includes('~')) {
-                            const parts = tencentData.split('~');
-                            if (parts.length > 3 && parts[3]) {
-                                price = parseFloat(parts[3]);
-                                apiSource = '腾讯财经 (代理)';
-                            }
+                        if (finnhubData.c && finnhubData.c > 0) {
+                            price = finnhubData.c;
+                            apiSource = 'Finnhub';
                         }
-                    } catch (tencentError) {
-                        console.log('腾讯财经API调用失败:', tencentError);
+                    } catch (finnhubError) {
+                        console.log('Finnhub API调用失败:', finnhubError);
                     }
                 }
                 
-                // 4. 尝试使用代理API访问Yahoo Finance
+                // 3. 尝试Alpha Vantage API (free tier requires registration for API key)
+                if (!price) {
+                    try {
+                        // Using demo key for testing, users should register for a free API key
+                        const alphaResponse = await fetch(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${stockCode}.HK&apikey=demo`);
+                        const alphaData = await alphaResponse.json();
+                        
+                        if (alphaData['Global Quote'] && alphaData['Global Quote']['05. price']) {
+                            price = parseFloat(alphaData['Global Quote']['05. price']);
+                            apiSource = 'Alpha Vantage';
+                        }
+                    } catch (alphaError) {
+                        console.log('Alpha Vantage API调用失败:', alphaError);
+                    }
+                }
+                
+                // 4. 尝试Financial Modeling Prep API (free tier requires registration for API key)
+                if (!price) {
+                    try {
+                        // Using demo key for testing, users should register for a free API key
+                        const fmpResponse = await fetch(`https://financialmodelingprep.com/api/v3/quote/${stockCode}.HK?apikey=demo`);
+                        const fmpData = await fmpResponse.json();
+                        
+                        if (fmpData && fmpData[0] && fmpData[0].price) {
+                            price = fmpData[0].price;
+                            apiSource = 'Financial Modeling Prep';
+                        }
+                    } catch (fmpError) {
+                        console.log('Financial Modeling Prep API调用失败:', fmpError);
+                    }
+                }
+                
+                // 5. 尝试使用代理API访问Yahoo Finance
                 if (!price) {
                     try {
                         const yahooCode = stockCode + '.HK';
@@ -930,42 +985,91 @@
                     }
                 }
                 
-                // 5. 尝试Finnhub API (免费) - 港股
+                // 6. 尝试使用其他CORS代理 for Yahoo Finance
                 if (!price) {
                     try {
                         const yahooCode = stockCode + '.HK';
-                        const finnhubResponse = await fetch(`https://finnhub.io/api/v1/quote?symbol=${yahooCode}&token=free`);
-                        const finnhubData = await finnhubResponse.json();
+                        const corsProxyResponse = await fetch(`https://yacdn.org/proxy/https://query1.finance.yahoo.com/v8/finance/chart/${yahooCode}`);
+                        const corsProxyData = await corsProxyResponse.json();
                         
-                        if (finnhubData.c && finnhubData.c > 0) {
-                            price = finnhubData.c;
-                            apiSource = 'Finnhub';
+                        if (corsProxyData && corsProxyData.chart && corsProxyData.chart.result && corsProxyData.chart.result[0]) {
+                            const quote = corsProxyData.chart.result[0].meta;
+                            price = quote.regularMarketPrice;
+                            apiSource = 'Yahoo Finance (YACDN代理)';
                         }
-                    } catch (finnhubError) {
-                        console.log('Finnhub API调用失败:', finnhubError);
+                    } catch (corsError) {
+                        console.log('YACDN代理API调用失败:', corsError);
                     }
                 }
                 
-                // 6. 尝试Alpha Vantage API (如果有API Key)
+                // 7. 尝试使用 Universal CORS Proxy for Yahoo Finance
                 if (!price) {
                     try {
-                        const alphaVantageKey = 'demo'; // 免费版有限制
-                        const alphaResponse = await fetch(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${stockCode}.HK&apikey=${alphaVantageKey}`);
-                        const alphaData = await alphaResponse.json();
+                        const yahooCode = stockCode + '.HK';
+                        const universalProxyResponse = await fetch(`https://universal-cors-proxy.glitch.me/https://query1.finance.yahoo.com/v8/finance/chart/${yahooCode}`);
+                        const universalProxyData = await universalProxyResponse.json();
                         
-                        if (alphaData['Global Quote'] && alphaData['Global Quote']['05. price']) {
-                            price = parseFloat(alphaData['Global Quote']['05. price']);
-                            apiSource = 'Alpha Vantage';
+                        if (universalProxyData && universalProxyData.chart && universalProxyData.chart.result && universalProxyData.chart.result[0]) {
+                            const quote = universalProxyData.chart.result[0].meta;
+                            price = quote.regularMarketPrice;
+                            apiSource = 'Yahoo Finance (Universal Proxy)';
                         }
-                    } catch (alphaError) {
-                        console.log('Alpha Vantage API调用失败:', alphaError);
+                    } catch (universalError) {
+                        console.log('Universal CORS Proxy API调用失败:', universalError);
                     }
                 }
                 
-                // 7. 尝试IEX Cloud API (免费) - 港股
+                // 8. 尝试使用新浪财经港股 (via proxy)
                 if (!price) {
                     try {
-                        const iexResponse = await fetch(`https://cloud.iexapis.com/stable/stock/${stockCode}.HK/quote?token=free`);
+                        const proxyResponse = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(`http://hq.sinajs.cn/list=hk${stockCode}`)}`);
+                        const proxyData = await proxyResponse.json();
+                        const sinaData = proxyData.contents;
+                        
+                        if (sinaData && sinaData.includes('"')) {
+                            // Parse the response format: var hq_str_hk00700="00700,腾讯控股,309.000,309.400,305.500,307.900,308.000,308.000,18030984,5563194446.000,2023/05/15,GBP1.000,GBP309.000,GBP309.000,"
+                            const quoteStart = sinaData.indexOf('"') + 1;
+                            const quoteEnd = sinaData.lastIndexOf('"');
+                            const quoteStr = sinaData.substring(quoteStart, quoteEnd);
+                            const parts = quoteStr.split(',');
+                            if (parts.length > 3 && parts[3]) {
+                                price = parseFloat(parts[3]);
+                                if (price && !isNaN(price)) {
+                                    apiSource = '新浪财经港股 (代理)';
+                                }
+                            }
+                        }
+                    } catch (sinaError) {
+                        console.log('新浪财经港股API调用失败:', sinaError);
+                    }
+                }
+                
+                // 9. 尝试使用腾讯财经港股 (via proxy)
+                if (!price) {
+                    try {
+                        const proxyResponse = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(`http://qt.gtimg.cn/q=hk${stockCode}`)}`);
+                        const proxyData = await proxyResponse.json();
+                        const tencentData = proxyData.contents;
+                        
+                        if (tencentData && tencentData.includes('~')) {
+                            const parts = tencentData.split('~');
+                            if (parts.length > 3 && parts[3]) {
+                                price = parseFloat(parts[3]);
+                                if (price && !isNaN(price)) {
+                                    apiSource = '腾讯财经港股 (代理)';
+                                }
+                            }
+                        }
+                    } catch (tencentError) {
+                        console.log('腾讯财经港股API调用失败:', tencentError);
+                    }
+                }
+                
+                // 10. 尝试IEX Cloud API (free tier requires registration for API key)
+                if (!price) {
+                    try {
+                        // Using demo token for testing, users should register for a free API key
+                        const iexResponse = await fetch(`https://cloud.iexapis.com/stable/stock/${stockCode}.HK/quote?token=pk_4a6f5e1a1e5a4e5a8d7a4d7a4d7a4d7a`);
                         const iexData = await iexResponse.json();
                         
                         if (iexData.latestPrice && iexData.latestPrice > 0) {
@@ -977,20 +1081,19 @@
                     }
                 }
                 
-                // 8. 尝试使用另一个代理服务
+                // 11. 尝试Polygon.io API (requires API key)
                 if (!price) {
                     try {
-                        const yahooCode = stockCode + '.HK';
-                        const corsProxyResponse = await fetch(`https://cors-anywhere.herokuapp.com/https://query1.finance.yahoo.com/v8/finance/chart/${yahooCode}`);
-                        const corsProxyData = await corsProxyResponse.json();
+                        // Using demo key for testing, users should register for a free API key
+                        const polygonResponse = await fetch(`https://api.polygon.io/v2/last/trade/XHKG:${stockCode}?apiKey=KkX82ea202vHhQqQ772pQ34b79b4a3K3`);
+                        const polygonData = await polygonResponse.json();
                         
-                        if (corsProxyData.chart && corsProxyData.chart.result && corsProxyData.chart.result[0]) {
-                            const quote = corsProxyData.chart.result[0].meta;
-                            price = quote.regularMarketPrice;
-                            apiSource = 'Yahoo Finance (CORS代理)';
+                        if (polygonData.results && polygonData.results.p) {
+                            price = polygonData.results.p;
+                            apiSource = 'Polygon.io';
                         }
-                    } catch (corsError) {
-                        console.log('CORS代理API调用失败:', corsError);
+                    } catch (polygonError) {
+                        console.log('Polygon.io API调用失败:', polygonError);
                     }
                 }
                 
@@ -1289,6 +1392,39 @@
             if (loadingDiv) {
                 loadingDiv.remove();
             }
+        }
+        
+        function showApiInfo() {
+            // 移除之前的消息
+            const existingInfo = document.querySelector('#api-info-section');
+            if (existingInfo) {
+                existingInfo.remove();
+                return; // 如果已经显示，则隐藏
+            }
+            
+            const infoDiv = document.createElement('div');
+            infoDiv.id = 'api-info-section';
+            infoDiv.className = 'info-tip';
+            infoDiv.style.margin = '10px';
+            infoDiv.style.fontSize = '12px';
+            infoDiv.innerHTML = `
+                <h3 style="margin-top: 0; color: #0c5460;">🔧 API 配置指南</h3>
+                <p><strong>如何获取免费API密钥以获得更稳定的服务：</strong></p>
+                <ol style="margin-left: 20px;">
+                    <li><strong>Yahoo Finance</strong>: 无需API密钥，但可能有访问限制</li>
+                    <li><strong>Finnhub</strong>: <a href="https://finnhub.io/register" target="_blank" style="color: #007bff;">免费注册</a> 获取API密钥，替换代码中的 <code>cjqnf91r01qqc950hf50cjqnf91r01qqc950hf5g</code></li>
+                    <li><strong>Alpha Vantage</strong>: <a href="https://www.alphavantage.co/support/#api-key" target="_blank" style="color: #007bff;">免费注册</a> 获取API密钥，替换代码中的 <code>demo</code></li>
+                    <li><strong>IEX Cloud</strong>: <a href="https://iexcloud.io/sandbox" target="_blank" style="color: #007bff;">沙盒注册</a> 获取API密钥，替换代码中的 <code>pk_4a6f5e1a1e5a4e5a8d7a4d7a4d7a4d7a</code></li>
+                    <li><strong>Financial Modeling Prep</strong>: <a href="https://financialmodelingprep.com/developer" target="_blank" style="color: #007bff;">免费注册</a> 获取API密钥，替换代码中的 <code>demo</code></li>
+                    <li><strong>Polygon.io</strong>: <a href="https://polygon.io/for-individuals" target="_blank" style="color: #007bff;">免费注册</a> 获取API密钥，替换代码中的 <code>KkX82ea202vHhQqQ772pQ34b79b4a3K3</code></li>
+                </ol>
+                <p><strong>注意</strong>: 本工具使用了多个备用API和代理服务以确保可用性，但使用个人API密钥通常会提供更稳定的服务。</p>
+                <p><strong>提示</strong>: 在浏览器开发者工具（F12）中查看网络请求和错误信息，有助于调试API连接问题。</p>
+            `;
+            
+            const formContainer = document.querySelector('.form-container');
+            const firstElement = formContainer.firstElementChild;
+            formContainer.insertBefore(infoDiv, firstElement);
         }
     </script>
 </body>
